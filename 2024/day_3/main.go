@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"regexp"
 )
 
 func check(e error) {
@@ -28,10 +29,24 @@ func main() {
 
 	}
 
-	var leftOperand, rightOperand int
-	s, err := fmt.Sscanf(fullText, "mul(%d,%d)", &leftOperand, &rightOperand)
+	findAnyRegex, _ := regexp.Compile(`(mul\(\d+,\d+\))|(do\(\))|(don't\(\)`)
 
-	check(err)
-	fmt.Printf("s: %v\n", s)
+	findMulRegex, _ := regexp.Compile(`mul\(\d+,\d+\)`)
+
+	findDoRegex, _ := regexp.Compile(`do()`)
+	findDontRegex, _ := regexp.Compile(`don't()`)
+
+	muls := findMulRegex.FindAllString(fullText, -1)
+
+	totalVal := 0
+
+	for _, val := range muls {
+		var leftOperand, rightOperand int
+		_, err := fmt.Sscanf(val, "mul(%d,%d)", &leftOperand, &rightOperand)
+		check(err)
+		totalVal += (leftOperand * rightOperand)
+	}
+
+	fmt.Println(totalVal)
 
 }
